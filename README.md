@@ -27,4 +27,6 @@ python src/cosine_compare.py  > output/cosine_compare.txt
 python src/compare_audio.py  > output/compare_audio.txt
 
 python src/compare_vocals.py  > output/compare_vocals.txt
+
+python src/compare_vector.py  > output/compare_vector.txt
 ```

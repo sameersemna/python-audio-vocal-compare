@@ -1,0 +1,32 @@
+metric_default: sqeuclidean
+Model loaded successfully.
+************************************************************
+Start Comparing: data/001002.mp3 & data/001002_copy.mp3
+------------------------------
+Acoustic Similarity Score (DTW): 0.0657
+Finished Comparing: data/001002.mp3 & data/001002_copy.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001001.mp3 & data/001002.mp3
+------------------------------
+Acoustic Similarity Score (DTW): 21.6726
+Finished Comparing: data/001001.mp3 & data/001002.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001003.mp3 & data/001002.mp3
+------------------------------
+Acoustic Similarity Score (DTW): 22.2106
+Finished Comparing: data/001003.mp3 & data/001002.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001002_abdussamad.mp3 & data/001002.mp3
+------------------------------
+Acoustic Similarity Score (DTW): 12.1470
+Finished Comparing: data/001002_abdussamad.mp3 & data/001002.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001002_alafasy.mp3 & data/001002.mp3
+------------------------------
+Acoustic Similarity Score (DTW): 9.9064
+Finished Comparing: data/001002_alafasy.mp3 & data/001002.mp3
+************************************************************
