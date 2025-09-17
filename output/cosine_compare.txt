@@ -1,0 +1,30 @@
+************************************************************
+Start Comparing: data/001002.mp3 & data/001002_copy.mp3
+Attempting to separate vocals from: data/001002.mp3
+'separated/htdemucs/001002/vocals.mp3' successfully separated. Loading...
+Attempting to separate vocals from: data/001002_copy.mp3
+'separated/htdemucs/001002_copy/vocals.mp3' successfully separated. Loading...
+Extracting features from audio data... Sample rate: 44100
+Extracting features from audio data... Sample rate: 44100
+Calculating similarity with cdist...
+Calculating similarity with DTW...
+------------------------------
+Average Cosine Distance (cdist): 0.0557
+Dynamic Time Warping Distance (DTW): 0.0000
+Finished Comparing: data/001002.mp3 & data/001002_copy.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001002.mp3 & data/001001.mp3
+Attempting to separate vocals from: data/001002.mp3
+'separated/htdemucs/001002/vocals.mp3' successfully separated. Loading...
+Attempting to separate vocals from: data/001001.mp3
+'separated/htdemucs/001001/vocals.mp3' successfully separated. Loading...
+Extracting features from audio data... Sample rate: 44100
+Extracting features from audio data... Sample rate: 44100
+Calculating similarity with cdist...
+Calculating similarity with DTW...
+------------------------------
+Average Cosine Distance (cdist): 0.0600
+Dynamic Time Warping Distance (DTW): 0.0180
+Finished Comparing: data/001002.mp3 & data/001001.mp3
+************************************************************

@@ -1,0 +1,64 @@
+************************************************************
+Start Comparing: data/001002.mp3 & data/001002_copy.mp3
+Attempting to separate vocals from: data/001002.mp3
+'separated/htdemucs/001002/vocals.mp3' successfully separated. Loading...
+Detected identical files via hash. Reusing vocal data for a guaranteed 0 acoustic score.
+Extracting features from audio data... Sample rate: 44100
+Extracting features from audio data... Sample rate: 44100
+Calculating acoustic similarity with DTW...
+------------------------------
+Acoustic Similarity Score (DTW): 0.0000
+Finished Comparing: data/001002.mp3 & data/001002_copy.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001001.mp3 & data/001002.mp3
+Attempting to separate vocals from: data/001001.mp3
+'separated/htdemucs/001001/vocals.mp3' successfully separated. Loading...
+Attempting to separate vocals from: data/001002.mp3
+'separated/htdemucs/001002/vocals.mp3' successfully separated. Loading...
+Extracting features from audio data... Sample rate: 44100
+Extracting features from audio data... Sample rate: 44100
+Calculating acoustic similarity with DTW...
+------------------------------
+Acoustic Similarity Score (DTW): 0.5439
+Finished Comparing: data/001001.mp3 & data/001002.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001003.mp3 & data/001002.mp3
+Attempting to separate vocals from: data/001003.mp3
+'separated/htdemucs/001003/vocals.mp3' successfully separated. Loading...
+Attempting to separate vocals from: data/001002.mp3
+'separated/htdemucs/001002/vocals.mp3' successfully separated. Loading...
+Extracting features from audio data... Sample rate: 44100
+Extracting features from audio data... Sample rate: 44100
+Calculating acoustic similarity with DTW...
+------------------------------
+Acoustic Similarity Score (DTW): 0.3665
+Finished Comparing: data/001003.mp3 & data/001002.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001002_abdussamad.mp3 & data/001002.mp3
+Attempting to separate vocals from: data/001002_abdussamad.mp3
+'separated/htdemucs/001002_abdussamad/vocals.mp3' successfully separated. Loading...
+Attempting to separate vocals from: data/001002.mp3
+'separated/htdemucs/001002/vocals.mp3' successfully separated. Loading...
+Extracting features from audio data... Sample rate: 44100
+Extracting features from audio data... Sample rate: 44100
+Calculating acoustic similarity with DTW...
+------------------------------
+Acoustic Similarity Score (DTW): 0.2273
+Finished Comparing: data/001002_abdussamad.mp3 & data/001002.mp3
+************************************************************
+************************************************************
+Start Comparing: data/001002_alafasy.mp3 & data/001002.mp3
+Attempting to separate vocals from: data/001002_alafasy.mp3
+'separated/htdemucs/001002_alafasy/vocals.mp3' successfully separated. Loading...
+Attempting to separate vocals from: data/001002.mp3
+'separated/htdemucs/001002/vocals.mp3' successfully separated. Loading...
+Extracting features from audio data... Sample rate: 44100
+Extracting features from audio data... Sample rate: 44100
+Calculating acoustic similarity with DTW...
+------------------------------
+Acoustic Similarity Score (DTW): 0.6038
+Finished Comparing: data/001002_alafasy.mp3 & data/001002.mp3
+************************************************************
