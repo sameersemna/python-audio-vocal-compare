@@ -1,1 +1,14 @@
 separated
+._.DS_Store
+.DS_Store
+pretrained_models/
+
+*.mp4
+*.wav
+*.flac
+*.m4a
+*.srt
+*.vtt
+*_transcript.txt
+*.mp3
+shuwayyir.txt
