@@ -1,4 +1,65 @@
 import os
+# --- Early CPU control -----------------------------------------------------
+# Allow the user to limit CPU usage via an optional --cpus CLI flag or
+# environment variable TARTEEL_CPU_THREADS. These must be set before
+# importing heavy native libraries (torch, transformers) so that OpenMP/MKL
+#/OpenBLAS pick them up during initialization.
+import argparse
+
+# Minimal early arg parsing: use parse_known_args so the main parser later
+# in the file can still parse its own arguments.
+_early_parser = argparse.ArgumentParser(add_help=False)
+_early_parser.add_argument('--cpus', type=int, default=None,
+                           help='Number of CPU threads the process should use')
+_early_parser.add_argument('--pin-cores', type=str, default=None,
+                           help='Comma-separated CPU cores or ranges to pin to, e.g. "0-3,5"')
+_early_args, _remaining_argv = _early_parser.parse_known_args()
+
+# Determine desired CPU thread count (env var overrides to preserve old behaviour)
+_env_cpus = os.environ.get('TARTEEL_CPU_THREADS')
+if _early_args.cpus is not None:
+    NUM_CPU_THREADS = max(1, _early_args.cpus)
+elif _env_cpus is not None:
+    try:
+        NUM_CPU_THREADS = max(1, int(_env_cpus))
+    except Exception:
+        NUM_CPU_THREADS = 4
+else:
+    NUM_CPU_THREADS = 4
+
+# Export common BLAS/OMP env vars before heavy imports
+os.environ.setdefault('OMP_NUM_THREADS', str(NUM_CPU_THREADS))
+os.environ.setdefault('MKL_NUM_THREADS', str(NUM_CPU_THREADS))
+os.environ.setdefault('OPENBLAS_NUM_THREADS', str(NUM_CPU_THREADS))
+os.environ.setdefault('NUMEXPR_NUM_THREADS', str(NUM_CPU_THREADS))
+
+# Optionally pin process to specific cores (Linux only)
+_pin_cores_spec = _early_args.pin_cores or os.environ.get('TARTEEL_PIN_CORES')
+if _pin_cores_spec:
+    try:
+        def _parse_core_spec(spec: str):
+            cores = set()
+            for part in spec.split(','):
+                part = part.strip()
+                if '-' in part:
+                    a, b = part.split('-', 1)
+                    cores.update(range(int(a), int(b) + 1))
+                else:
+                    cores.add(int(part))
+            return cores
+
+        cores_to_pin = _parse_core_spec(_pin_cores_spec)
+        # os.sched_setaffinity exists on Linux; wrap in try/except for portability
+        try:
+            os.sched_setaffinity(0, cores_to_pin)
+        except AttributeError:
+            # Not supported on this platform
+            pass
+    except Exception:
+        # If parsing/pinning fails, continue without raising so script still runs
+        pass
+
+# Now import heavy modules
 import torch
 import datetime
 # Import the necessary classes from transformers
@@ -11,7 +72,7 @@ from transformers import pipeline # Re-importing pipeline for robust segment ext
 # Use the specific Tarteel model as requested
 # MODEL_ID = "tarteel-ai/whisper-tiny-ar-quran"
 MODEL_ID = "tarteel-ai/whisper-base-ar-quran"
-# MODEL_ID = "openai/whisper-tiny"
+MODEL_ID = "openai/whisper-tiny"
 # We still need the base model processor and config to get the correct token IDs
 BASE_MODEL_ID = "openai/whisper-tiny"
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu" 
@@ -200,12 +261,28 @@ def transcribe_file(file_path, output_dir="./output"):
 
 # --- Example Usage ---
 if __name__ == "__main__":
+    # 1. Create the parser object
+    parser = argparse.ArgumentParser(
+        description="A script to process a single file specified via command line."
+    )
+
+    # 2. Add the positional argument (it's required by default)
+    parser.add_argument(
+        'INPUT_FILE',
+        type=str,
+        help='The path to the input file to be processed.'
+    )
+
+    # 3. Parse the arguments
+    args = parser.parse_args()
     
     # The path provided by the user
-    INPUT_FILE = "/home/sameer/Shared/Sync/Private/Work/Projects/qadrai/shuwayyir.mp4"
+    # INPUT_FILE = "/home/sameer/Shared/Sync/Private/Work/Projects/qadrai/shuwayyir.cln.mp4"
+    INPUT_FILE = args.INPUT_FILE
+    output_dir = os.path.dirname(INPUT_FILE)
     
     if os.path.exists(INPUT_FILE):
-        transcribe_file(INPUT_FILE)
+        transcribe_file(INPUT_FILE, output_dir=output_dir)
     else:
         print(f"Error: The input file was not found at the specified path: {INPUT_FILE}")
         print("Please double-check the file path.")

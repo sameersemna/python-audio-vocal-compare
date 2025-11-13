@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# bash get_yt.sh 'https://youtu.be/r8zpvs_v6zo?si=aCg4xm_jqufi86nW'
+
 set -e # Exit immediately if any command fails
 
 # --- Safety Checks ---
@@ -24,29 +27,62 @@ cores_count=$(nproc --all)
 threads_count=$((cores_count - 2))
 ffmpeg="/usr/bin/ffmpeg -threads $threads_count"
 echo "cores_count:$cores_count | threads_count:$threads_count | $ffmpeg"
+export OMP_NUM_THREADS=$threads_count
 
-# --- Activate Conda Environment ---
-YOUR_ENV="youtube"
-# --- Find and source conda ---
-# Use 'conda info --base' to find the base install location
-CONDA_BASE=$(conda info --base)
-if [ -z "$CONDA_BASE" ]; then
-    echo "Error: conda not found." >&2
-    exit 1
-fi
+# Function: activate_conda_env
+# Description: Finds the Conda installation base, sources the necessary profile
+# script, and attempts to activate the specified Conda environment.
+#
+# Usage: activate_conda_env <ENVIRONMENT_NAME>
+activate_conda_env() {
+    # Check if an environment name was provided
+    if [ -z "$1" ]; then
+        echo "Usage: activate_conda_env <ENVIRONMENT_NAME>" >&2
+        return 1
+    fi
 
-# Source the conda setup script
-source "$CONDA_BASE/etc/profile.d/conda.sh"
-# ---------------------------
+    local ENV_NAME="$1"
+    
+    # 1. Find the Conda base installation path using 'conda info --base'
+    local CONDA_BASE
+    # Suppress error output in case conda isn't immediately available
+    CONDA_BASE=$(conda info --base 2>/dev/null)
 
-echo "Activating '$YOUR_ENV'..."
-conda activate "$YOUR_ENV"
-# Now you are inside the activated environment
-echo "Running commands inside '$YOUR_ENV':"
-echo "Python path: $(which python)"
-python --version
-echo "-----------------------------------"
+    if [ -z "$CONDA_BASE" ]; then
+        echo "Error: 'conda' base directory could not be determined." >&2
+        echo "Please ensure Conda is installed and accessible in your shell's PATH." >&2
+        return 1
+    fi
 
+    # 2. Source the Conda setup script
+    local CONDA_SETUP_SCRIPT="$CONDA_BASE/etc/profile.d/conda.sh"
+    if [ -f "$CONDA_SETUP_SCRIPT" ]; then
+        # IMPORTANT: Use 'source' or '.' to execute the script in the current shell, 
+        # so the 'conda' function is properly loaded.
+        . "$CONDA_SETUP_SCRIPT"
+    else
+        echo "Error: Conda initialization script not found at $CONDA_SETUP_SCRIPT" >&2
+        return 1
+    fi
+
+    # 3. Activate the specified environment
+    echo "Attempting to activate Conda environment: $ENV_NAME"
+    conda activate "$ENV_NAME"
+    
+    # Check for activation success
+    if [ $? -ne 0 ]; then
+        echo "Warning: Failed to activate Conda environment '$ENV_NAME'. Check the name or existence." >&2
+        # We don't return 1 here because the shell hook might still be useful, 
+        # but we warn the user.
+    else
+        echo "Environment '$ENV_NAME' successfully activated."
+        echo "Python path: $(which python)"
+        python --version
+        echo "-----------------------------------"
+    fi
+}
+
+activate_conda_env youtube
 # 2. Check if required tools are installed
 if ! command -v yt-dlp &> /dev/null; then
     echo "Error: yt-dlp is not installed. Please install it to continue."
@@ -115,7 +151,7 @@ fi
 conda deactivate
 if [ ! -f "$EN_SUB_FILE" ]; then
     echo "Error: English subtitles (org.en.srt) failed to download after retry."
-    exit 1
+    # exit 1
 fi
 
 # Check if the main video file was downloaded
@@ -129,17 +165,9 @@ if [ -f "$AR_SUB_FILE" ]; then
     echo "Successfully downloaded Arabic subtitles: org.ar.srt"
 fi
 
-# Check if English subtitles were downloaded (required for ffmpeg)
-if [ ! -f "$EN_SUB_FILE" ]; then
-    echo "Warning: English subtitles (org.en.srt) were not found or did not download."
-    echo "Skipping subtitle burn-in process."
-    exit 0
-fi
-
-echo "Successfully downloaded English subtitles: org.en.srt"
-
 # --- 3. Clean Video Audio ---
 video_path_clean=${VIDEO_FILE/.mp4/.cln.mp4}
+audio_path_clean=${VIDEO_FILE/.mp4/.cln.mp3}
 if [ ! -f "$video_path_clean" ]; then
     echo "Starting video audio cleaning process..."
     bash clean.sh $VIDEO_FILE
@@ -156,10 +184,38 @@ fi
 
 # --- 3.5. Generate Improved Subtitles with Tarteel ---
 echo "Starting subtitle improvement process with Tarteel..."
-python src/tarteel.py "$video_path_clean"
+
+# python src/tarteel.py "$video_path_clean"
+# python src/tarteel01.py "$video_path_clean"
+# python src/tarteel02.py "$video_path_clean"
+
+if [ ! -f "$audio_path_clean" ]; then
+    $ffmpeg -i "$video_path_clean" -q:a 0 -map a "$audio_path_clean"
+    sleep 2
+fi
+
+activate_conda_env captions
+sleep 2
+# auto-subs transcribe "$video_path_clean" --model small
+# modelWhisper='medium'
+# modelWhisper='large'
+modelWhisper='turbo'
+whisper "$audio_path_clean" --model $modelWhisper --threads $threads_count --language ar --task transcribe --output_format all --output_dir "$VIDEO_DIR" --fp16 False
+sleep 2
+conda deactivate
+
 sleep 2
 echo "Subtitle improvement complete."
 echo "-----------------------------------"  
+
+# Check if English subtitles were downloaded (required for ffmpeg)
+if [ ! -f "$EN_SUB_FILE" ]; then
+    echo "Warning: English subtitles (org.en.srt) were not found or did not download."
+    echo "Skipping subtitle burn-in process."
+    exit 0
+fi
+
+echo "Successfully downloaded English subtitles: org.en.srt"
 
 # --- 4. Burn Subtitles with ffmpeg ---
 echo "Starting subtitle burn-in process (this may take a while)..."
@@ -174,7 +230,8 @@ cd "$VIDEO_DIR"
 # -preset fast         -> Prioritize speed over compression size
 # org.en.mp4           -> The final output file
 if [ ! -f "org.en.mp4" ]; then
-    $ffmpeg -i org.mp4 -vf "subtitles=org.en.srt" -c:a copy -preset fast org.en.mp4
+    echo "Running ffmpeg to burn subtitles into video..."
+    # $ffmpeg -i org.mp4 -vf "subtitles=org.en.srt" -c:a copy -preset fast org.en.mp4
 fi
 
 if [ $? -eq 0 ]; then

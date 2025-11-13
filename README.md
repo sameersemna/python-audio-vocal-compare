@@ -30,3 +30,10 @@ python src/compare_vocals.py  > output/compare_vocals.txt
 
 python src/compare_vector.py  > output/compare_vector.txt
 ```
+
+conda activate captions
+openai-whisper
+pip install auto-subs
+pip install auto-subs[transcribe]
+
+auto-subs transcribe video.mp4 --model small

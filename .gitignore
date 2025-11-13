@@ -11,4 +11,9 @@ pretrained_models/
 *.vtt
 *_transcript.txt
 *.mp3
+*.tsv
+*.lq.txt
+*.cln.txt
+*.cln.json
 shuwayyir.txt
+yt_links.csv
