@@ -30,7 +30,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   cmd="bash get_yt.sh '$line'"  
   echo $cmd
   # eval $cmd
-  bash get_yt.sh '$line'
+  bash get_yt.sh "$line"
   
   # --- End of Processing Logic ---
   echo "--- Sleeping for 60 seconds before processing the next link ---"

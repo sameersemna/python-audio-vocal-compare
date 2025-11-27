@@ -17,3 +17,6 @@ pretrained_models/
 *.cln.json
 shuwayyir.txt
 yt_links.csv
+cache/*
+rnn/*
+*.mp3.txt

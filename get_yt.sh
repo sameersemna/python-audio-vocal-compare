@@ -25,7 +25,7 @@ backendDir="$projDir/backend"
 
 cores_count=$(nproc --all)
 threads_count=$((cores_count - 2))
-ffmpeg="/usr/bin/ffmpeg -threads $threads_count"
+ffmpeg="/usr/bin/ffmpeg -nostdin -loglevel error -stats -threads $threads_count"
 echo "cores_count:$cores_count | threads_count:$threads_count | $ffmpeg"
 export OMP_NUM_THREADS=$threads_count
 

@@ -443,7 +443,7 @@ if __name__ == "__main__":
     if os.path.exists(INPUT_FILE):
         if not os.path.exists(wav_file):
             subprocess.run([
-                '/usr/bin/ffmpeg', '-i', INPUT_FILE,
+                '/usr/bin/ffmpeg', '-nostdin', '-i', INPUT_FILE,
                 '-ac', '1', '-ar', '16000', '-threads', str(NUM_CPU_THREADS), '-y', wav_file
             ], check=True)
         

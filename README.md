@@ -37,3 +37,8 @@ pip install auto-subs
 pip install auto-subs[transcribe]
 
 auto-subs transcribe video.mp4 --model small
+
+
+conda create -n youtubesearch python=3.6 
+conda create -n youtubesearch python=3.8
+conda activate youtubesearch
